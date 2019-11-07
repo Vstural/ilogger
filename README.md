@@ -48,9 +48,29 @@ type Formatter interface {
 }
 ```
 
+maybe in some case, you want to custom more, so impl this
+```go
+type Logger interface {
+	Debug(args ...interface{})
+	Info(args ...interface{})
+	Warning(args ...interface{})
+	Error(args ...interface{})
+	Critical(args ...interface{})
+	Fixed(args ...interface{})
+}
+```
+
+and set it
+
+```go
+ilogger.SetLogger(nil)
+```
+
 ## usage
 
 see `test/log_test.go`
+
+### base usage
 
 ```go
 func TestLog(t *testing.T) {
@@ -60,5 +80,18 @@ func TestLog(t *testing.T) {
 	ilogger.Error("Error")
 	ilogger.Critical("Critical")
 	ilogger.Fixed("Fixed")
+}
+```
+
+### use your custom formatter and logger
+
+```go
+func TestCustom(t *testing.T) {
+	ilogger.SetLogger(ilogger.NewDefaultLogger(
+		types.LevelDebug,
+		logger.NewSTDLogger(),
+		formatter.NewDefaultFormatter()))
+
+	ilogger.Debug("Hello!")
 }
 ```
