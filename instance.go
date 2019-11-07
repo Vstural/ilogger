@@ -8,16 +8,18 @@ import (
 )
 
 var mutex = &sync.RWMutex{}
-var globalLogger *Logger
+
+// var globalLogger *DefaultLogger
+var globalLogger Logger
 
 func init() {
-	globalLogger = NewLogger(
+	globalLogger = NewDefaultLogger(
 		types.LevelDebug,
 		logger.NewSTDLogger(),
 		formatter.NewDefaultFormatter())
 }
 
-func GetLogger() *Logger {
+func GetLogger() Logger {
 	mutex.RLock()
 	defer mutex.RUnlock()
 	return globalLogger
@@ -30,13 +32,8 @@ func Error(args ...interface{})    { GetLogger().Error(args...) }
 func Critical(args ...interface{}) { GetLogger().Critical(args...) }
 func Fixed(args ...interface{})    { GetLogger().Fixed(args...) }
 
-func SetLevel(level types.LogLevel) {
-	g := *globalLogger
-	g.f.currentLevel = level
-	SetLogger(&g)
-}
-
-func SetLogger(newLogger *Logger) {
+// thread safe to replace your logger
+func SetLogger(newLogger Logger) {
 	mutex.Lock()
 	defer mutex.Unlock()
 	globalLogger = newLogger
